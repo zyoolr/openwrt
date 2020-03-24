@@ -21,7 +21,7 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
     - name: Generate config file
-	  run: |
+      run:
         rm -f ./.config*
         touch ./.config
         # 编译K2T固件:

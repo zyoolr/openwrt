@@ -51,7 +51,6 @@ jobs:
         # CONFIG_PACKAGE_libmbedtls is not set
         # CONFIG_PACKAGE_libncurses is not set
         # CONFIG_PACKAGE_libreadline is not set
-        # CONFIG_PACKAGE_libuv is not set
         CONFIG_PACKAGE_luci-app-autoreboot=y
         # CONFIG_PACKAGE_luci-app-control-mia is not set
         # CONFIG_PACKAGE_luci-app-control-timewol is not set

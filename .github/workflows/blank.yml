@@ -1,0 +1,114 @@
+name: Build OpenWrt
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Installation depends
+      run: |
+        docker rmi `docker images -q`
+        echo "Deleting files, please wait ..."
+        sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php
+        sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
+        sudo -E apt-get update
+        sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get clean
+    - name: Clone source code
+      run: |
+        git clone git clone -b dev-19.07 https://github.com/Lienol/openwrt 
+        cd openwrt
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+    - name: Generate config file
+	  run: |
+        rm -f ./.config*
+        touch ./.config
+        # 编译K2T固件:
+        cat >> .config <<EOF
+        CONFIG_TARGET_ath79=y
+        CONFIG_TARGET_ath79_generic=y
+        CONFIG_TARGET_ath79_generic_DEVICE_phicomm_k2t=y
+        EOF 
+        # 常用LuCI插件选择:
+        cat >> .config <<EOF
+        # CONFIG_PACKAGE_ca-certificates is not set
+        # CONFIG_PACKAGE_chinadns-ng is not set
+        # CONFIG_PACKAGE_coreutils is not set
+        # CONFIG_PACKAGE_ddns-scripts is not set
+        # CONFIG_PACKAGE_dns2socks is not set
+        # CONFIG_PACKAGE_haproxy is not set
+        # CONFIG_PACKAGE_ip-tiny is not set
+        # CONFIG_PACKAGE_ipset is not set
+        # CONFIG_PACKAGE_ipt2socks is not set
+        # CONFIG_PACKAGE_iptables-mod-filter is not set
+        # CONFIG_PACKAGE_iptables-mod-tproxy is not set
+        # CONFIG_PACKAGE_kmod-gre is not set
+        # CONFIG_PACKAGE_kmod-ipt-filter is not set
+        # CONFIG_PACKAGE_kmod-ipt-tproxy is not set
+        # CONFIG_PACKAGE_kmod-lib-textsearch is not set
+        # CONFIG_PACKAGE_libatomic is not set
+        # CONFIG_PACKAGE_libipset is not set
+        # CONFIG_PACKAGE_libltdl is not set
+        # CONFIG_PACKAGE_libmbedtls is not set
+        # CONFIG_PACKAGE_libncurses is not set
+        # CONFIG_PACKAGE_libreadline is not set
+        # CONFIG_PACKAGE_libuv is not set
+        # CONFIG_PACKAGE_luci-app-accesscontrol is not set
+        CONFIG_PACKAGE_luci-app-autoreboot=y
+        # CONFIG_PACKAGE_luci-app-control-mia is not set
+        # CONFIG_PACKAGE_luci-app-control-timewol is not set
+        # CONFIG_PACKAGE_luci-app-control-webrestriction is not set
+        # CONFIG_PACKAGE_luci-app-control-weburl is not set
+        # CONFIG_PACKAGE_luci-app-ddns is not set
+        # CONFIG_PACKAGE_luci-app-fileassistant is not set
+        CONFIG_PACKAGE_luci-app-filetransfer=y
+        CONFIG_PACKAGE_luci-app-guest-wifi=y
+        CONFIG_PACKAGE_luci-app-nlbwmon=y
+        # CONFIG_PACKAGE_luci-app-passwall is not set
+        # CONFIG_PACKAGE_luci-app-pppoe-relay is not set
+        # CONFIG_PACKAGE_luci-app-pppoe-server is not set
+        # CONFIG_PACKAGE_luci-app-pptp-vpnserver-manyusers is not set
+        # CONFIG_PACKAGE_luci-app-vlmcsd is not set
+        # CONFIG_PACKAGE_luci-i18n-accesscontrol is not set
+        CONFIG_PACKAGE_luci-i18n-autoreboot-zh-cn=y
+        CONFIG_PACKAGE_luci-i18n-filetransfer-zh-cn=y
+        CONFIG_PACKAGE_luci-i18n-guest-wifi-zh-cn=y
+        CONFIG_PACKAGE_luci-i18n-nlbwmon-zh-cn=y
+        CONFIG_PACKAGE_luci-lib-fs=y
+        # CONFIG_PACKAGE_luci-theme-bootstrap-mod is not set
+        CONFIG_PACKAGE_nlbwmon=y
+        # CONFIG_PACKAGE_pptpd is not set
+        # CONFIG_PACKAGE_resolveip is not set
+        # CONFIG_PACKAGE_rp-pppoe-common is not set
+        # CONFIG_PACKAGE_rp-pppoe-relay is not set
+        # CONFIG_PACKAGE_rp-pppoe-server is not set
+        # CONFIG_PACKAGE_shadowsocksr-libev-alt is not set
+        # CONFIG_PACKAGE_tcping is not set
+        # CONFIG_PACKAGE_terminfo is not set
+        # CONFIG_PACKAGE_unzip is not set
+        # CONFIG_PACKAGE_v2ray is not set
+        # CONFIG_PACKAGE_vlmcsd is not set
+        EOF	
+        sed -i 's/^[ \t]*//g' ./.config
+        make defconfig		
+    - name: Make download
+      run: |
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+    - name: Compile firmware
+      run: |
+        echo -e "$(nproc) thread build."
+        make -j$(nproc) V=s
+    - name: Assemble artifact
+      run: |
+        rm -rf ./artifact/
+        mkdir -p ./artifact/
+        find ./bin/targets/ -name "*combined*img*" | xargs -i mv -f {} ./artifact/
+        find ./bin/targets/ -name "*sysupgrade*bin*" | xargs -i mv -f {} ./artifact/
+    - name: Upload artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: OpenWrt firmware
+        path: ./artifact/

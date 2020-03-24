@@ -36,21 +36,6 @@ jobs:
         # CONFIG_PACKAGE_ddns-scripts is not set
         # CONFIG_PACKAGE_dns2socks is not set
         # CONFIG_PACKAGE_haproxy is not set
-        # CONFIG_PACKAGE_ip-tiny is not set
-        # CONFIG_PACKAGE_ipset is not set
-        # CONFIG_PACKAGE_ipt2socks is not set
-        # CONFIG_PACKAGE_iptables-mod-filter is not set
-        # CONFIG_PACKAGE_iptables-mod-tproxy is not set
-        # CONFIG_PACKAGE_kmod-gre is not set
-        # CONFIG_PACKAGE_kmod-ipt-filter is not set
-        # CONFIG_PACKAGE_kmod-ipt-tproxy is not set
-        # CONFIG_PACKAGE_kmod-lib-textsearch is not set
-        # CONFIG_PACKAGE_libatomic is not set
-        # CONFIG_PACKAGE_libipset is not set
-        # CONFIG_PACKAGE_libltdl is not set
-        # CONFIG_PACKAGE_libmbedtls is not set
-        # CONFIG_PACKAGE_libncurses is not set
-        # CONFIG_PACKAGE_libreadline is not set
         CONFIG_PACKAGE_luci-app-autoreboot=y
         # CONFIG_PACKAGE_luci-app-control-mia is not set
         # CONFIG_PACKAGE_luci-app-control-timewol is not set

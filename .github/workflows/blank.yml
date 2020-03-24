@@ -29,7 +29,6 @@ jobs:
         CONFIG_TARGET_ath79_generic=y
         CONFIG_TARGET_ath79_generic_DEVICE_phicomm_k2t=y
         EOF 
-        # 常用LuCI插件选择:
         cat >> .config <<EOF
         # CONFIG_PACKAGE_ca-certificates is not set
         # CONFIG_PACKAGE_chinadns-ng is not set

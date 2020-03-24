@@ -30,12 +30,6 @@ jobs:
         CONFIG_TARGET_ath79_generic_DEVICE_phicomm_k2t=y
         EOF 
         cat >> .config <<EOF
-        # CONFIG_PACKAGE_ca-certificates is not set
-        # CONFIG_PACKAGE_chinadns-ng is not set
-        # CONFIG_PACKAGE_coreutils is not set
-        # CONFIG_PACKAGE_ddns-scripts is not set
-        # CONFIG_PACKAGE_dns2socks is not set
-        # CONFIG_PACKAGE_haproxy is not set
         CONFIG_PACKAGE_luci-app-autoreboot=y
         # CONFIG_PACKAGE_luci-app-control-mia is not set
         # CONFIG_PACKAGE_luci-app-control-timewol is not set
